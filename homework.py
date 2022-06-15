@@ -64,7 +64,10 @@ def get_api_answer(
             f'content = {homeworks_list.text}'
         )
         raise ConnectionError(message)
-    return homeworks_list.json()
+    homeworks_list = homeworks_list.json()
+    if len(homeworks_list) == 0:
+        logging.info('За последнее время нет домашних работ')
+    return homeworks_list
 
 
 def check_response(
@@ -122,8 +125,6 @@ def main():
             logging.info(
                 'Запрашиваем список домаших работ по временной метке %s',
                 current_timestamp)
-            if len(response) == 0:
-                logging.info('За последнее время нет домашних работ')
         except Exception as error:
             message = f'Ошибка подключения к Практикуму: {error}'
             logging.error(message)
@@ -134,14 +135,9 @@ def main():
             current_status = homework['status']
             if current_status == prev_status:
                 logging.info('По домашним работам нет обновлений')
-        except Exception as error:
-            message = f'Сбой в работе программы: {error}'
-            logging.exception(message)
+                break
             send_message(bot, message)
-        try:
-            if current_status != prev_status:
-                send_message(bot, message)
-                current_timestamp = response['date_updated']
+            current_timestamp = response['date_updated']
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.exception(message)
