@@ -2,10 +2,6 @@ class ErrorSendMessage(Exception):
     pass
 
 
-class KeyErrorInAPI(Exception):
-    pass
-
-
 class KeyErrorInHomework(Exception):
     pass
 
