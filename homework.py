@@ -1,9 +1,7 @@
-import exceptions
 import logging
 import os
 import sys
 import time
-from datetime import datetime
 from http import HTTPStatus
 from typing import Dict, List, Union
 
@@ -12,6 +10,8 @@ import telegram
 import telegram.ext
 from dotenv import load_dotenv
 from telegram.error import TelegramError
+
+import exceptions
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -75,9 +75,7 @@ def get_api_answer(current_timestamp) -> Dict[str, Union[int, List]]:
     return homeworks_list
 
 
-def check_response(
-    response: Dict[str, Union[int, List]]
-) -> Dict[str, Union[int, str, datetime]]:
+def check_response(response: Dict) -> List:
     """Проверяет ответ API на корректность."""
     logging.info('Проверка ответа от API начата.')
     if not isinstance(response, dict):
@@ -107,14 +105,14 @@ def check_response(
 def parse_status(homework):
     """Извлечение информации о статусе домашней работы."""
     logging.info('Получение данных из домашей работы')
-    homework_name = homework['homework_name']
+    homework_name = homework.get('homework_name')
     if homework_name is None:
         message = 'Ошибка ключа домашней работы'
-        raise exceptions.KeyErrorInHomework(message)
+        raise KeyError(message)
     homework_status = homework.get('status')
     if homework_status is None:
         message = 'В домашней работе нет статуса'
-        raise exceptions.KeyErrorInHomework(message)
+        raise KeyError(message)
     if homework_status not in HOMEWORK_VERDICT:
         message = f'Среди корректных статусов такого нет: {homework_status}'
         raise exceptions.KeyErrorInHomework(message)
@@ -151,7 +149,7 @@ def main():
             response = get_api_answer(current_timestamp)
             homework = check_response(response)
             message = parse_status(homework[0])
-            if current_status == prev_status:
+            if message == prev_status:
                 logging.info('По домашним работам нет обновлений')
             else:
                 send_message(bot, message)
