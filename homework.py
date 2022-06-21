@@ -75,7 +75,7 @@ def get_api_answer(current_timestamp) -> Dict[str, Union[int, List]]:
     return homeworks_list
 
 
-def check_response(response: Dict) -> List:
+def check_response(response: dict) -> list:
     """Проверяет ответ API на корректность."""
     logging.info('Проверка ответа от API начата.')
     if not isinstance(response, dict):
